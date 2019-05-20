@@ -63,45 +63,6 @@ void read_shm(){
    }
 }
 
-int priority(char j){
-    char ch[1];
-        ch[0]=j;
-        int x;
-        x=strcspn(read_str,ch);
-        return x;
-}
-int p_priority(char ch){
-    int priority[13];
-    char sorted_colors[7];
-    int x;
-    for (int i = 0; i < 12; i++)
-    {
-        int index=0;
-        for (int j = 0; j < 12; j++)
-        {
-            if (read_str[i]==read_str[j])
-            {
-                index=j;
-                for (int k = 0; k < 12; k++)
-                {
-                    if(sorted_colors[k]=='\0'||sorted_colors[k]==read_str[j]){
-                        sorted_colors[k]=read_str[j];
-                        break;
-                    }
-                }
-                
-                break;
-            }
-        }
-    }
-    for (int i = 0; i < 6; i++)
-    {
-        printf("%c ",sorted_colors[i]);
-        if (sorted_colors[i]==ch)
-            x=i;
-    }
-        return x;
-}
 
 int is_there_pair(char ch,int x,int n){
     int counter=0;
@@ -181,7 +142,6 @@ int main (int argc, char **argv){
             printf ("Fork error.\n");
         }
         else if (pid == 0){
-            child_id=i;
             read_shm();
             switch (read_str[i])
                 {
@@ -276,26 +236,17 @@ int main (int argc, char **argv){
                 x=t;
                 break;}
         }
-        int which = PRIO_PROCESS;
-        id_t pid;
-        int ret;
-        pid = getpid();
-        ret = setpriority(which, pid, x*3);
-        ret = getpriority(which, pid);
-        // sleep(x*2);
         while (1)
         {
             
             if(x<=*priority_flag){
                 sem_wait (sem);           /* P operation */  
-                // printf("Current priority %d\n",*priority_flag);
                 int y=is_there_pair(read_str[i],i,n);
-                if(y==0)
-                *priority_flag+=1;      
-                
                 printf("-> Process %d Color %c Prioriy %d y %d\n",i,read_str[i],x,y);
                 sleep (pointing_time);
                 printf("    <- Process %d\n",i);   
+                if(y==0)
+                *priority_flag+=1; 
                 sem_post (sem);           /* V operation */
                 break;
             }
