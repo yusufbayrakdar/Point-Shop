@@ -10,6 +10,9 @@
 #include <sys/resource.h>
 #include<string.h>
 #define SHSIZE 100
+typedef int bool;
+#define true 1
+#define false 0
 char read_str[100];
 int pointing_time;
 
@@ -90,7 +93,7 @@ int main (int argc, char **argv){
     int *priority_flag;                       /*      shared variable         *//*shared */
 
     if (argc != 3){//Check the argumants and if they are not appropriate then exit.
-        printf("Unappropriate call, please give me input and output file");
+        printf("Unappropriate call, please give me input and output file\n");
         exit(1);
     }  
     FILE *file = fopen ( argv[1], "r" );
@@ -114,6 +117,7 @@ int main (int argc, char **argv){
     else{
         perror ( argv[1] ); /* why didn't the file open? */
     } 
+    
 
     /* initialize a shared variable in shared memory */
     shmkey = ftok ("/dev/null", 5);       /* valid directory name and a number */
@@ -123,8 +127,7 @@ int main (int argc, char **argv){
         exit (1);
     }
     priority_flag = (int *) shmat (shmid, NULL, 0);   /* attach p to shared memory */
-    *priority_flag = 0;
-    printf ("priority_flag=%d is allocated in shared memory.\n\n", *priority_flag);
+    *priority_flag = 0;         //priority_flag is allocated in shared memory with value 0.
     /* initialize semaphores for shared processes */
     sem = sem_open ("pSem", O_CREAT | O_EXCL, 0644, value); 
     /* name of semaphore is "pSem", semaphore is reached using this name */
@@ -177,15 +180,16 @@ int main (int argc, char **argv){
     /******************************************************/
     if (pid != 0){
         /* wait for all children to exit */
-        if(i==10){
+        if(i==0){
         int which = PRIO_PROCESS;
         int priority = -20;
-        int ret;
-        ret = setpriority(which, pid, priority);
-        printf("ret :%d",ret);}
-        while (pid = waitpid (-1, NULL, 0)){
-            if (errno == ECHILD)
-                break;
+        int x;
+        x = setpriority(which, pid, priority);
+    }
+        int wait_counter=0;
+        while(wait_counter<n){
+            wait(NULL);
+            wait_counter+=1;
         }
 
         printf ("\nParent: All children have exited.\n");
@@ -236,21 +240,48 @@ int main (int argc, char **argv){
                 x=t;
                 break;}
         }
+        int order=0;
+        for (int j = 0; j < i; j++)
+        {
+            if (read_str[j]==read_str[i])
+            {   
+                order+=1;
+            }
+            
+        }
+        FILE *first_out = fopen("output.txt", "w");
+        FILE *out = fopen("output.txt", "a");
+        if (out == NULL)
+        {
+            printf("Error opening file!\n");
+            exit(1);
+        }if (first_out == NULL)
+        {
+            printf("Error opening file!\n");
+            exit(1);
+        }
         while (1)
         {
-            
-            if(x<=*priority_flag){
+            if(x<=*priority_flag%10&&*priority_flag/1000>=order){
                 sem_wait (sem);           /* P operation */  
-                int y=is_there_pair(read_str[i],i,n);
-                printf("-> Process %d Color %c Prioriy %d y %d\n",i,read_str[i],x,y);
+                if (i==0)
+                {
+                    fprintf(first_out,"%d\n",(int)strlen(sorted_colors));    
+                }
+                fprintf(out,"%d %c\n",i+100,read_str[i]);
+                printf("%d %c\n",i+100,read_str[i]);
+                int which_char=is_there_pair(read_str[i],i,n);
+                *priority_flag+=1000; 
                 sleep (pointing_time);
-                printf("    <- Process %d\n",i);   
-                if(y==0)
-                *priority_flag+=1; 
+                if(which_char==0){
+                    *priority_flag+=1; 
+                    *priority_flag=*priority_flag%10; 
+                }
+                // printf("    <- Process %d %c <- CS out\n",i+100,read_str[i]);   
                 sem_post (sem);           /* V operation */
                 break;
             }
-            sleep(1);
+            usleep(100);
         }
         
         exit (0);
