@@ -262,22 +262,21 @@ int main (int argc, char **argv){
         }
         while (1)
         {
-            if(x<=*priority_flag%10&&*priority_flag/1000>=order){
+            if(x==*priority_flag%10&&*priority_flag/1000==order){
                 sem_wait (sem);           /* P operation */  
-                if (i==0)
-                {
-                    fprintf(first_out,"%d\n",(int)strlen(sorted_colors));    
-                }
-                fprintf(out,"%d %c\n",i+100,read_str[i]);
                 printf("%d %c\n",i+100,read_str[i]);
-                int which_char=is_there_pair(read_str[i],i,n);
+                if (i==0)
+                fprintf(first_out,"%d\n",(int)strlen(sorted_colors));    
+                usleep (pointing_time*1000);
+                fprintf(out,"%d %c\n",i+100,read_str[i]);
                 *priority_flag+=1000; 
-                sleep (pointing_time);
+                int which_char=is_there_pair(read_str[i],i,n);
+                usleep (pointing_time*999000);
                 if(which_char==0){
                     *priority_flag+=1; 
                     *priority_flag=*priority_flag%10; 
                 }
-                // printf("    <- Process %d %c <- CS out\n",i+100,read_str[i]);   
+                printf("    %d %c\n",i+100,read_str[i]);  
                 sem_post (sem);           /* V operation */
                 break;
             }
