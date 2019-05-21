@@ -267,7 +267,7 @@ int main (int argc, char **argv){
                     intruder=true;
                 if(*(priority_flag+2)==2)  
                     intruder=false;              
-            if(x==*priority_flag%10&&*priority_flag/1000%10==order&&intruder){
+            if(x==*priority_flag&&*(priority_flag+1)==order&&intruder){
                 sem_wait (sem);           /* P operation */  
                 *(priority_flag+2)+=1;
                 printf("%d %d %c\n",*(priority_flag+2),i+100,read_str[i]);
@@ -275,12 +275,12 @@ int main (int argc, char **argv){
                 fprintf(first_out,"%d\n",(int)strlen(sorted_colors));    
                 usleep (pointing_time*1000);
                 fprintf(out,"%d %c\n",i+100,read_str[i]);
-                *priority_flag+=1000; 
+                *(priority_flag+1)+=1; 
                 int which_char=is_there_pair(read_str[i],i,n);
                 usleep (pointing_time*999000);
                 if(which_char==0){
                     *priority_flag+=1; 
-                    *priority_flag=*priority_flag%10; 
+                    *(priority_flag+1)=0; 
                 }
                 printf("    %d %c\n",i+100,read_str[i]);  
                 *(priority_flag+2)-=1; 
