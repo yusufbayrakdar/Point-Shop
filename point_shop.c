@@ -260,11 +260,17 @@ int main (int argc, char **argv){
             printf("Error opening file!\n");
             exit(1);
         }
+        bool intruder=true;
         while (1)
         {
-            if(x==*priority_flag%10&&*priority_flag/1000==order){
+                if(*(priority_flag+2)==0)
+                    intruder=true;
+                if(*(priority_flag+2)==2)  
+                    intruder=false;              
+            if(x==*priority_flag%10&&*priority_flag/1000%10==order&&intruder){
                 sem_wait (sem);           /* P operation */  
-                printf("%d %c\n",i+100,read_str[i]);
+                *(priority_flag+2)+=1;
+                printf("%d %d %c\n",*(priority_flag+2),i+100,read_str[i]);
                 if (i==0)
                 fprintf(first_out,"%d\n",(int)strlen(sorted_colors));    
                 usleep (pointing_time*1000);
@@ -277,6 +283,7 @@ int main (int argc, char **argv){
                     *priority_flag=*priority_flag%10; 
                 }
                 printf("    %d %c\n",i+100,read_str[i]);  
+                *(priority_flag+2)-=1; 
                 sem_post (sem);           /* V operation */
                 break;
             }
