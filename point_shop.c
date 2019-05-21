@@ -74,7 +74,6 @@ int is_there_pair(char ch,int x,int n){
         if(read_str[i]==ch)
             counter++;
     }
-    // printf("%d ",counter);
     return counter;
     
 }
@@ -132,7 +131,7 @@ int main (int argc, char **argv){
     sem = sem_open ("pSem", O_CREAT | O_EXCL, 0644, value); 
     /* name of semaphore is "pSem", semaphore is reached using this name */
     write_shm(boxes);
-    printf ("SEMAPHORES INITIALIZED.\n\n");
+    printf ("SEMAPHORES INITIALIZED.\n");
     /* fork child processes */
     for (i = 0; i < n; i++){
         pid = fork ();
@@ -192,7 +191,7 @@ int main (int argc, char **argv){
             wait_counter+=1;
         }
 
-        printf ("\nParent: All children have exited.\n");
+        printf ("Parent: All children have exited.\n");
 
         /* shared memory detach */
         shmdt(priority_flag);
@@ -270,7 +269,7 @@ int main (int argc, char **argv){
             if(x==*priority_flag&&*(priority_flag+1)==order&&intruder){
                 sem_wait (sem);           /* P operation */  
                 *(priority_flag+2)+=1;
-                printf("%d %d %c\n",*(priority_flag+2),i+100,read_str[i]);
+                printf("%d %c ->\n",i+100,read_str[i]);
                 if (i==0)
                 fprintf(first_out,"%d\n",(int)strlen(sorted_colors));    
                 usleep (pointing_time*1000);
@@ -282,7 +281,7 @@ int main (int argc, char **argv){
                     *priority_flag+=1; 
                     *(priority_flag+1)=0; 
                 }
-                printf("    %d %c\n",i+100,read_str[i]);  
+                printf("    <- %d %c\n",i+100,read_str[i]);
                 *(priority_flag+2)-=1; 
                 sem_post (sem);           /* V operation */
                 break;
